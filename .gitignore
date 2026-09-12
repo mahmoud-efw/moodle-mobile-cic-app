@@ -1,0 +1,23 @@
+node_modules/
+platforms/
+plugins/
+www/
+build/
+.angular/
+legacy/android-release/
+legacy/ios-release/
+*.keystore
+*.jks
+*.p8
+*.p12
+*.pepk
+*.mobileprovision
+*firebase-adminsdk*.json
+*-adminsdk-*.json
+google-services.json
+GoogleService-Info.plist
+keyinfo.txt
+key info.txt
+.env
+*.log
+.DS_Store

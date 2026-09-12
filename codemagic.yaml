@@ -1,0 +1,62 @@
+# codemagic.yaml — Concord International College iOS build (cloud Mac)
+# Place this file at the ROOT of the app repo (next to package.json / config.xml).
+#
+# Values marked  # TODO:  are filled in once we read the legacy moodle.config.json.
+# Codemagic does the signing + TestFlight upload for you — no local Mac needed.
+#
+# One-time setup in the Codemagic UI (see the runbook):
+#   • Teams → Integrations → App Store Connect → add an API key  → name it "ConcordASC"
+#   • That single integration handles code signing AND the TestFlight upload.
+
+workflows:
+  ios-release:
+    name: Concord iOS Release
+    instance_type: mac_mini_m2         # Codemagic's cloud Mac
+    max_build_duration: 90
+
+    integrations:
+      app_store_connect: ConcordASC    # must match the integration name you create
+
+    environment:
+      node: 20                          # moodleapp needs Node 20.x
+      xcode: latest
+      cocoapods: default
+      vars:
+        XCODE_SCHEME: "Concord International College"   # TODO: exact app display name / scheme
+        BUNDLE_ID: "eg.edu.concord.app"                 # TODO: reuse the CURRENT app's bundle id
+        APP_STORE_APPLE_ID: 0000000000                  # TODO: numeric Apple ID of the App Store listing
+
+    scripts:
+      - name: Install JS dependencies
+        script: npm ci
+
+      - name: Add iOS platform (idempotent)
+        script: npx ionic cordova platform add ios --no-interactive || true
+
+      - name: Fetch signing files from App Store Connect
+        script: xcode-project use-profiles
+
+      - name: Build web assets + Cordova iOS (unsigned)
+        script: npx ionic cordova build ios --release --prod --device --no-interactive
+
+      - name: Assemble signed IPA
+        script: |
+          set -e
+          WS=$(find "$CM_BUILD_DIR/platforms/ios" -maxdepth 1 -name "*.xcworkspace" | head -1)
+          xcode-project build-ipa --workspace "$WS" --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true      # lands in TestFlight automatically
+        # submit_to_app_store: false    # flip to true only when you're ready for a public release
+      email:
+        recipients:
+          - mahmoud.msa@gmail.com       # build result notifications
+        notify:
+          success: true
+          failure: true
