@@ -100,21 +100,28 @@ workflows:
           # xcodebuild picks a default, and because the Cordova-generated CIC target
           # advertises Mac among its supported destinations it archived for macOS —
           # then the iOS provisioning profile (correctly) didn't match "macOS".
+          # --archive-flags: force the iOS destination (Cordova target also lists Mac).
+          # --archive-xcargs: keep Codemagic's default (COMPILER_INDEX_STORE_ENABLE=NO)
+          #   AND disable Xcode 16's "Explicitly Built Modules" (the ScanDependencies
+          #   phase), which fails on the older Objective-C Cordova plugins
+          #   (advanced-http, phonegap-plugin-push). Modules themselves stay enabled;
+          #   only the explicit prebuild-scan mechanism is turned off.
           xcode-project build-ipa \
             --workspace "$WS" \
             --scheme "$XCODE_SCHEME" \
-            --archive-flags="-destination generic/platform=iOS"
+            --archive-flags="-destination generic/platform=iOS" \
+            --archive-xcargs="COMPILER_INDEX_STORE_ENABLE=NO CLANG_ENABLE_EXPLICIT_MODULES=NO SWIFT_ENABLE_EXPLICIT_MODULES=NO"
           RC=$?
           set -e
           if [ "$RC" -ne 0 ]; then
-            echo "=================== RAW XCODEBUILD ERRORS ==================="
-            # codemagic-cli-tools writes the full raw xcodebuild output here.
             LOG=$(ls -t /tmp/xcodebuild_logs/*.log 2>/dev/null | head -1)
             if [ -n "$LOG" ]; then
-              echo "log: $LOG"
-              grep -nE "error:|fatal error|clang: error|ld: |Provisioning|profile|entitlement|requires|No such|not found" "$LOG" | tail -80
-              echo "--------------------- last 60 lines ------------------------"
-              tail -60 "$LOG"
+              echo "--------------------- last 40 lines of raw log ------------"
+              tail -40 "$LOG"
+              echo "=============== ERROR LINES (read these) ==================="
+              # Printed LAST so it survives a truncated 'last 50 lines' paste.
+              grep -nE "error:|fatal error|clang: error|ld: |Undefined symb|Provisioning|entitlement" "$LOG" | tail -40
+              echo "log file: $LOG"
             else
               echo "no /tmp/xcodebuild_logs/*.log found"
             fi
