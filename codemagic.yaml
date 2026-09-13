@@ -37,7 +37,15 @@ workflows:
         script: xcode-project use-profiles
 
       - name: Build web assets + Cordova iOS (unsigned)
-        script: npx ionic cordova build ios --release --prod --device --no-interactive
+        # Cordova's own archive step must NOT sign — no team is set here on purpose.
+        # xcode-project build-ipa (next step) does the real signed archive using the
+        # profiles fetched by `use-profiles`. Without these flags, `cordova build ios
+        # --device` fails with "Signing for CIC requires a development team".
+        script: >
+          npx ionic cordova build ios --release --prod --device --no-interactive
+          --buildFlag="CODE_SIGN_IDENTITY="
+          --buildFlag="CODE_SIGNING_REQUIRED=NO"
+          --buildFlag="CODE_SIGNING_ALLOWED=NO"
 
       - name: Assemble signed IPA
         script: |
