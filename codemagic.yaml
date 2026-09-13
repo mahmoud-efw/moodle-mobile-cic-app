@@ -25,13 +25,12 @@ workflows:
                                         # exact name in the Codemagic UI, or it won't be
                                         # injected into the build.
       node: 22                          # moodleapp v5.2.1 needs Node 22.x (engines >=22.17 <23)
-      # Pin a stable Xcode 16 instead of `latest` (Xcode 26.x): the bleeding-edge
-      # 26.x "Explicitly Built Modules" scanner (ScanDependencies) fails on the
-      # older Objective-C in cordova-plugin-advanced-http (SM_AFNetworkReachabilityManager.m).
-      # Moodle builds/releases moodleapp on Xcode 16.x, and Xcode 16 (iOS 18 SDK)
-      # is what Apple currently requires for App Store submission, so this is both
-      # known-good for this codebase and store-acceptable.
-      xcode: 16.4
+      # Xcode 26 (iOS 26 SDK) is REQUIRED by App Store Connect as of 2026 — an
+      # iOS 18 SDK build is rejected at upload ("must be built with the iOS 26 SDK
+      # or later"). The older-ObjC ScanDependencies crash that 26.x otherwise hits
+      # is handled by disabling Explicitly Built Modules in the archive step below
+      # (CLANG_ENABLE_EXPLICIT_MODULES=NO), so 26.x now builds this codebase.
+      xcode: 26.6
       cocoapods: default
       vars:
         XCODE_SCHEME: "CIC"                             # matches config.xml <name>CIC</name> (Cordova names the .xcworkspace/scheme after it)
