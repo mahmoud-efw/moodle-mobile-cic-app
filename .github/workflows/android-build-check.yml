@@ -11,6 +11,8 @@ jobs:
   build-check:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write        # needed to publish the APK as a Release asset
     steps:
       - uses: actions/checkout@v4
 
@@ -39,10 +41,30 @@ jobs:
       - name: Build DEBUG apk (unsigned, validation only)
         run: npx ionic cordova build android --no-interactive
 
-      - name: Upload debug apk
+      - name: Rename apk for a clear download name
+        run: |
+          set -e
+          APK=$(find platforms/android/app/build/outputs -name '*.apk' | head -1)
+          cp "$APK" "CIC-debug.apk"
+          ls -la CIC-debug.apk
+
+      - name: Upload debug apk (Actions artifact)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: concord-debug-apk
-          path: platforms/android/app/build/outputs/**/*.apk
+          path: CIC-debug.apk
           if-no-files-found: warn
+
+      - name: Publish debug APK to a Release (easy phone download)
+        if: success()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: debug-latest
+          name: CIC debug build (latest)
+          body: >
+            Latest unsigned DEBUG build of the CIC app for on-device testing.
+            Uninstall any existing CIC app first (debug signature differs), then
+            install CIC-debug.apk. Not for Play upload.
+          prerelease: true
+          files: CIC-debug.apk
