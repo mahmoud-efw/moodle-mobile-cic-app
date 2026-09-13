@@ -62,30 +62,23 @@ workflows:
       # keychain, then `use-profiles` wires the fetched profiles into the
       # Xcode project. Requires the ConcordASC API key to have Admin or
       # App Manager role so it can create certs/profiles.
+      # Code signing uses a STABLE private key stored once in Codemagic as the
+      # secure env var CERTIFICATE_PRIVATE_KEY (raw PEM). fetch-signing-files then:
+      #   - first ever build: creates ONE distribution certificate bound to that key
+      #   - every later build: finds that same certificate (its key matches) and
+      #     reuses it — no new cert, so Apple's certificate limit is never hit.
+      # This replaces the old "create a fresh cert each build" approach, which
+      # multiplied certs until Apple returned 409 "you already have a current iOS
+      # Distribution certificate". --create still (re)generates the App Store
+      # provisioning profile, which carries the App ID's Push Notifications feature.
       - name: Fetch signing files from App Store Connect
         script: |
           set -e
           keychain initialize
-          # The Apple account's existing iOS Distribution certificate can't be used
-          # on CI: its private key lives only on the Mac that created it and can't
-          # be downloaded from Apple ("Cannot save Signing Certificates without
-          # certificate private key"). So generate our own private key and create a
-          # fresh distribution certificate with it. This is safe for the store: an
-          # app UPDATE may be signed with a different distribution cert — only the
-          # bundle id and Team must stay the same.
-          KEY=/tmp/cic_dist_key.pem
-          openssl genrsa -out "$KEY" 2048
-          app-store-connect certificates create \
-            --type IOS_DISTRIBUTION \
-            --certificate-key=@file:"$KEY" \
-            --save
-          # Fetch/create the App Store profile (carries the Push Notifications
-          # capability from the App ID). --certificate-key ties it to the cert we
-          # just created, whose private key we hold.
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --platform IOS \
             --type IOS_APP_STORE \
-            --certificate-key=@file:"$KEY" \
+            --certificate-key "@env:CERTIFICATE_PRIVATE_KEY" \
             --create
           keychain add-certificates
           xcode-project use-profiles
