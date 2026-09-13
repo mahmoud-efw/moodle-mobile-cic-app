@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "000000000000",
-    "project_id": "concord-placeholder",
-    "storage_bucket": "concord-placeholder.appspot.com"
+    "project_number": "838045258227",
+    "project_id": "concord-85676",
+    "storage_bucket": "concord-85676.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "mobilesdk_app_id": "1:838045258227:android:c7d982ffb844a76a740286",
         "android_client_info": {
           "package_name": "com.egyptforweb.cic"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "838045258227-jg3anulo8fninq5dncp2sskbmdhvtdh4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyA0PLACEHOLDER_CONCORD_BUILD_ONLY0000"
+          "current_key": "AIzaSyCUnD10_2X2n7SEFM51nafJL9RSD6UQqWU"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "838045258227-jg3anulo8fninq5dncp2sskbmdhvtdh4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
