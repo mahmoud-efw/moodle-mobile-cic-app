@@ -2,4 +2,12 @@
  * App Custom App variables SCSS
  * ----------------------------------------------------------------------------
  * Place here all custom app variables.
+ *
+ * Concord International College brand palette.
+ * Loaded BEFORE globals.variables (see globals.scss), so these win over the
+ * upstream `!default` values without editing any upstream file — keeps future
+ * moodleapp upgrades merging cleanly.
  */
+
+// Primary brand colour — Concord maroon.
+$brand-color: #8A143A;

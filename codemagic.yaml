@@ -22,9 +22,9 @@ workflows:
       xcode: latest
       cocoapods: default
       vars:
-        XCODE_SCHEME: "Concord International College"   # TODO: exact app display name / scheme
-        BUNDLE_ID: "eg.edu.concord.app"                 # TODO: reuse the CURRENT app's bundle id
-        APP_STORE_APPLE_ID: 0000000000                  # TODO: numeric Apple ID of the App Store listing
+        XCODE_SCHEME: "CIC"                             # matches config.xml <name>CIC</name> (Cordova names the .xcworkspace/scheme after it)
+        BUNDLE_ID: "com.egyptforweb.cic"                # CURRENT App Store bundle id — do NOT change (keeps it the same app)
+        APP_STORE_APPLE_ID: 1615314269                  # numeric Apple ID of the Concord App Store listing
 
     scripts:
       - name: Install JS dependencies
@@ -32,6 +32,9 @@ workflows:
 
       - name: Add iOS platform (idempotent)
         script: npx ionic cordova platform add ios --no-interactive || true
+
+      - name: Generate app icons & splash from resources/
+        script: npx cordova-res ios --skip-config --copy || true
 
       - name: Fetch signing files from App Store Connect
         script: xcode-project use-profiles

@@ -1,21 +1,28 @@
 /*
  * App CUSTOM theme SCSS
  * ----------------------------------------------------------------------------
- * Place here custom styles.
+ * Concord International College — accent colour.
+ *
+ * Primary (maroon) is set in globals.custom.scss. Here we map the amber accent
+ * onto Ionic's `secondary` colour role. Tune once previewed on-device.
  */
 
-/*
- * Light Theme
- * -------------------------------------------
- */
-:root {
-
+@mixin concord-accent() {
+    /* Amber accent #F89A1F */
+    --ion-color-secondary: #F89A1F;
+    --ion-color-secondary-rgb: 248, 154, 31;
+    --ion-color-secondary-contrast: #000000;
+    --ion-color-secondary-contrast-rgb: 0, 0, 0;
+    --ion-color-secondary-shade: #da8720;
+    --ion-color-secondary-tint: #f9a435;
 }
 
-/*
- * Dark Theme
- * -------------------------------------------
- */
-:root.dark {
+/* Light theme */
+:root {
+    @include concord-accent();
+}
 
+/* Dark theme */
+:root.dark {
+    @include concord-accent();
 }

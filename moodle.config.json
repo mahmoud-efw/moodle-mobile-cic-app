@@ -1,8 +1,8 @@
 {
-    "app_id": "com.moodle.moodlemobile",
-    "appname": "Moodle Mobile",
-    "versioncode": 52100,
-    "versionname": "5.2.1",
+    "app_id": "com.egyptforweb.cic",
+    "appname": "Concord International College",
+    "versioncode": 105,
+    "versionname": "1.1.0",
     "cache_update_frequency_usually": 420000,
     "cache_update_frequency_often": 1200000,
     "cache_update_frequency_sometimes": 3600000,
@@ -86,22 +86,27 @@
         "medium": 110,
         "high": 120
     },
-    "customurlscheme": "moodlemobile",
-    "sites": [],
+    "customurlscheme": "cic",
+    "sites": [
+        {
+            "name": "Concord International College",
+            "url": "https://lms.cic.edu.eg"
+        }
+    ],
     "multisitesdisplay": "",
     "sitefindersettings": {},
-    "onlyallowlistedsites": false,
+    "onlyallowlistedsites": true,
     "forcedefaultlanguage": false,
     "privacypolicy": "https://moodle.net/moodle-app-privacy/",
-    "notificoncolor": "#f98012",
+    "notificoncolor": "#F89A1F",
     "enableanalytics": false,
     "forceColorScheme": "",
     "forceLoginLogo": false,
     "showTopLogo": "hidden",
     "ioswebviewscheme": "moodleappfs",
     "appstores": {
-        "android": "com.moodle.moodlemobile",
-        "ios": "id633359593"
+        "android": "com.egyptforweb.cic",
+        "ios": "id1615314269"
     },
     "wsrequestqueuelimit": 10,
     "wsrequestqueuedelay": 100,
