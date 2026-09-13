@@ -1,0 +1,48 @@
+# First-build validation for the Concord rebrand on moodleapp v5.2.1.
+# Debug build — NO signing secrets required. Proves the app compiles and a
+# Cordova Android build produces an artifact. The signed release workflow is
+# android-release.yml (needs the real upload keystore in secrets).
+name: Android Build Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Add Android platform (idempotent)
+        run: npx ionic cordova platform add android --no-interactive || true
+
+      - name: Generate app icons & splash from resources/
+        run: npx cordova-res android --skip-config --copy || true
+
+      - name: Build DEBUG apk (unsigned, validation only)
+        run: npx ionic cordova build android --no-interactive
+
+      - name: Upload debug apk
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: concord-debug-apk
+          path: platforms/android/app/build/outputs/**/*.apk
+          if-no-files-found: warn
