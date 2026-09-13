@@ -18,6 +18,12 @@ workflows:
       app_store_connect: ConcordASC    # must match the integration name you create
 
     environment:
+      groups:
+        - ios_signing                   # Codemagic env-var group that holds the secure
+                                        # var CERTIFICATE_PRIVATE_KEY (the reusable signing
+                                        # key). The var MUST be added to a group of this
+                                        # exact name in the Codemagic UI, or it won't be
+                                        # injected into the build.
       node: 22                          # moodleapp v5.2.1 needs Node 22.x (engines >=22.17 <23)
       # Pin a stable Xcode 16 instead of `latest` (Xcode 26.x): the bleeding-edge
       # 26.x "Explicitly Built Modules" scanner (ScanDependencies) fails on the
