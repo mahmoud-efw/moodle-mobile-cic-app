@@ -33,9 +33,6 @@ workflows:
       - name: Add iOS platform (idempotent)
         script: npx ionic cordova platform add ios --no-interactive || true
 
-      - name: Generate app icons & splash from resources/
-        script: npx cordova-res ios --skip-config --copy || true
-
       - name: Fetch signing files from App Store Connect
         script: xcode-project use-profiles
 
