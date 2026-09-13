@@ -96,7 +96,14 @@ workflows:
           # the real xcodebuild error (build-ipa's pretty-printer hides it, leaving
           # only "Failed to archive").
           set +e
-          xcode-project build-ipa --workspace "$WS" --scheme "$XCODE_SCHEME"
+          # Force the archive to target iOS. Without an explicit destination,
+          # xcodebuild picks a default, and because the Cordova-generated CIC target
+          # advertises Mac among its supported destinations it archived for macOS —
+          # then the iOS provisioning profile (correctly) didn't match "macOS".
+          xcode-project build-ipa \
+            --workspace "$WS" \
+            --scheme "$XCODE_SCHEME" \
+            --archive-flags="-destination generic/platform=iOS"
           RC=$?
           set -e
           if [ "$RC" -ne 0 ]; then
