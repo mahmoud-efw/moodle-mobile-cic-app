@@ -10,13 +10,13 @@
     <path android:fillColor="#8A143A" android:pathData="M0,112 H720 V140 H0 Z" />
     <!-- Top amber band -->
     <path android:fillColor="#F89A1F" android:pathData="M24,152 H696 V182 H24 Z" />
-    <!-- Columns -->
-    <path android:fillColor="#8A143A" android:pathData="M32,194 H96 V344 H32 Z" />
-    <path android:fillColor="#8A143A" android:pathData="M141,194 H205 V344 H141 Z" />
-    <path android:fillColor="#8A143A" android:pathData="M251,194 H315 V344 H251 Z" />
-    <path android:fillColor="#8A143A" android:pathData="M360,194 H424 V344 H360 Z" />
-    <path android:fillColor="#8A143A" android:pathData="M469,194 H533 V344 H469 Z" />
-    <path android:fillColor="#8A143A" android:pathData="M579,194 H643 V344 H579 Z" />
+    <!-- Columns (centered) -->
+    <path android:fillColor="#8A143A" android:pathData="M40,194 H104 V344 H40 Z" />
+    <path android:fillColor="#8A143A" android:pathData="M155,194 H219 V344 H155 Z" />
+    <path android:fillColor="#8A143A" android:pathData="M270,194 H334 V344 H270 Z" />
+    <path android:fillColor="#8A143A" android:pathData="M386,194 H450 V344 H386 Z" />
+    <path android:fillColor="#8A143A" android:pathData="M501,194 H565 V344 H501 Z" />
+    <path android:fillColor="#8A143A" android:pathData="M616,194 H680 V344 H616 Z" />
     <!-- Bottom amber band -->
     <path android:fillColor="#F89A1F" android:pathData="M24,356 H696 V386 H24 Z" />
     <!-- Base -->
