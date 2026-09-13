@@ -44,9 +44,6 @@ jobs:
       - name: Add Android platform (idempotent)
         run: npx ionic cordova platform add android --no-interactive || true
 
-      - name: Generate app icons & splash from resources/
-        run: npx cordova-res android --skip-config --copy || true
-
       - name: Build signed release bundle (.aab)
         run: |
           npx ionic cordova build android --release --prod -- \
