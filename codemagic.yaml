@@ -92,9 +92,29 @@ workflows:
 
       - name: Assemble signed IPA
         script: |
-          set -e
           WS=$(find "$CM_BUILD_DIR/platforms/ios" -maxdepth 1 -name "*.xcworkspace" | head -1)
+          # Run the build; capture its exit code without aborting so we can surface
+          # the real xcodebuild error (build-ipa's pretty-printer hides it, leaving
+          # only "Failed to archive").
+          set +e
           xcode-project build-ipa --workspace "$WS" --scheme "$XCODE_SCHEME"
+          RC=$?
+          set -e
+          if [ "$RC" -ne 0 ]; then
+            echo "=================== RAW XCODEBUILD ERRORS ==================="
+            # codemagic-cli-tools writes the full raw xcodebuild output here.
+            LOG=$(ls -t /tmp/xcodebuild_logs/*.log 2>/dev/null | head -1)
+            if [ -n "$LOG" ]; then
+              echo "log: $LOG"
+              grep -nE "error:|fatal error|clang: error|ld: |Provisioning|profile|entitlement|requires|No such|not found" "$LOG" | tail -80
+              echo "--------------------- last 60 lines ------------------------"
+              tail -60 "$LOG"
+            else
+              echo "no /tmp/xcodebuild_logs/*.log found"
+            fi
+            echo "============================================================"
+            exit "$RC"
+          fi
 
     artifacts:
       - build/ios/ipa/*.ipa
