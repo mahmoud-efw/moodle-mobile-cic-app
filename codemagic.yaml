@@ -19,7 +19,13 @@ workflows:
 
     environment:
       node: 22                          # moodleapp v5.2.1 needs Node 22.x (engines >=22.17 <23)
-      xcode: latest
+      # Pin a stable Xcode 16 instead of `latest` (Xcode 26.x): the bleeding-edge
+      # 26.x "Explicitly Built Modules" scanner (ScanDependencies) fails on the
+      # older Objective-C in cordova-plugin-advanced-http (SM_AFNetworkReachabilityManager.m).
+      # Moodle builds/releases moodleapp on Xcode 16.x, and Xcode 16 (iOS 18 SDK)
+      # is what Apple currently requires for App Store submission, so this is both
+      # known-good for this codebase and store-acceptable.
+      xcode: 16.4
       cocoapods: default
       vars:
         XCODE_SCHEME: "CIC"                             # matches config.xml <name>CIC</name> (Cordova names the .xcworkspace/scheme after it)
