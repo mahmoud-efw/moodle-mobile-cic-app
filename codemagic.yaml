@@ -47,8 +47,25 @@ workflows:
 
       # Must run AFTER `cordova prepare` — prepare rewrites the Xcode project's
       # signing settings, so fetching/applying profiles has to come last.
+      #
+      # We fetch WITH --create so App Store Connect generates a distribution
+      # profile that reflects the App ID's current capabilities (moodleapp
+      # enables the Push Notifications entitlement, so the profile must carry
+      # the Push Notifications feature — a bare `use-profiles` picked a profile
+      # that lacked it). The distribution certificate is loaded into the
+      # keychain, then `use-profiles` wires the fetched profiles into the
+      # Xcode project. Requires the ConcordASC API key to have Admin or
+      # App Manager role so it can create certs/profiles.
       - name: Fetch signing files from App Store Connect
-        script: xcode-project use-profiles
+        script: |
+          set -e
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --platform IOS \
+            --type IOS_APP_STORE \
+            --create
+          keychain initialize
+          keychain add-certificates
+          xcode-project use-profiles
 
       - name: Assemble signed IPA
         script: |
