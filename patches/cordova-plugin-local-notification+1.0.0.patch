@@ -1,0 +1,18 @@
+diff --git a/node_modules/cordova-plugin-local-notification/src/android/build/localnotification.gradle b/node_modules/cordova-plugin-local-notification/src/android/build/localnotification.gradle
+index 1111111..2222222 100644
+--- a/node_modules/cordova-plugin-local-notification/src/android/build/localnotification.gradle
++++ b/node_modules/cordova-plugin-local-notification/src/android/build/localnotification.gradle
+@@ -29,4 +29,13 @@
+ 
+ dependencies {
+     implementation "me.leolin:ShortcutBadger:${appShortcutBadgerVersion}@aar"
++    // Force a modern androidx.media so MediaSessionCompat / MediaButtonReceiver
++    // create PendingIntents with FLAG_IMMUTABLE (required for target API 31+).
++    implementation 'androidx.media:media:1.7.0'
+ }
++
++configurations.all {
++    resolutionStrategy {
++        force 'androidx.media:media:1.7.0'
++    }
++}
