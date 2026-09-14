@@ -19,6 +19,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write        # needed to publish the .aab as a Release asset
     steps:
       - uses: actions/checkout@v4
 
@@ -59,6 +61,18 @@ jobs:
           name: concord-release-aab
           path: platforms/android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
+
+      - name: Publish signed .aab to a Release (easy download for Play upload)
+        if: success()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: release-latest
+          name: CIC signed release bundle (latest)
+          body: >
+            Latest SIGNED release .aab for Google Play upload. Upload this file to
+            Play Console -> Production. Not installable directly (App Bundle).
+          prerelease: true
+          files: platforms/android/app/build/outputs/bundle/release/*.aab
 
       # --- Optional: auto-publish to Play internal testing track ---
       # - name: Publish to Play (internal)
