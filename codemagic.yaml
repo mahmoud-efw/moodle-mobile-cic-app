@@ -44,17 +44,17 @@ workflows:
       - name: Add iOS platform (idempotent)
         script: npx ionic cordova platform add ios --no-interactive || true
 
-      # Build the Angular/Ionic web bundle only (gulp + `ionic build --prod` -> www/).
-      # We deliberately do NOT run `cordova build ios --device`: that runs
-      # `xcodebuild archive` itself, which always demands a development team, and its
-      # `prepare` phase overwrites the signing settings. Instead we build the web,
-      # copy it into the native project with `cordova prepare` (no archive), then let
-      # `xcode-project build-ipa` do the one and only signed archive.
-      - name: Build web assets (Angular/Ionic)
-        script: npm run build:prod
-
-      - name: Prepare Cordova iOS project (copy web assets, no archive)
-        script: npx cordova prepare ios --no-interactive
+      # Build the web bundle in CORDOVA MODE and copy it into the iOS project.
+      # This MUST go through `ionic cordova prepare` (the @ionic/cordova-builders
+      # cordova-build builder), not a plain `ionic build`: only the cordova builder
+      # rewrites <base href> from "/" to "./" and injects cordova.js so assets load
+      # from file:// inside the WKWebView on-device. A plain `ionic build --prod`
+      # leaves base href "/", which boots fine in a browser but hangs on the splash
+      # screen on a real device (Angular never loads its root-absolute assets).
+      # `prepare` builds the web + copies into the platform WITHOUT archiving, so
+      # `xcode-project build-ipa` still does the one and only signed archive.
+      - name: Build web (Cordova mode) + prepare iOS
+        script: npx ionic cordova prepare ios --prod --no-interactive
 
       # Must run AFTER `cordova prepare` — prepare rewrites the Xcode project's
       # signing settings, so fetching/applying profiles has to come last.
