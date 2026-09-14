@@ -46,14 +46,35 @@ jobs:
       - name: Add Android platform (idempotent)
         run: npx ionic cordova platform add android --no-interactive || true
 
+      # Sign via a Cordova build.json (buildConfig), NOT via `-- --keystore` CLI
+      # flags. The CLI flags are not reliably applied to an app BUNDLE, producing
+      # an unsigned .aab that Google Play rejects ("All uploaded bundles must be
+      # signed"). build.json wires the keystore into Gradle's release signingConfig,
+      # so the .aab is properly signed. Secrets are passed via env (kept out of the
+      # command line and logs) and written to a file outside the repo.
       - name: Build signed release bundle (.aab)
+        env:
+          KS_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          node -e "const fs=require('fs');fs.writeFileSync(process.env.RUNNER_TEMP+'/build.json',JSON.stringify({android:{release:{keystore:process.env.RUNNER_TEMP+'/concord.keystore',storePassword:process.env.KS_PASSWORD,alias:process.env.KEY_ALIAS,password:process.env.KEY_PASSWORD}}}));"
           npx ionic cordova build android --release --prod -- \
-            --keystore="$RUNNER_TEMP/concord.keystore" \
-            --alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
-            --storePassword="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
-            --password="${{ secrets.ANDROID_KEY_PASSWORD }}" \
-            --packageType=bundle
+            --packageType=bundle \
+            --buildConfig="$RUNNER_TEMP/build.json"
+
+      - name: Verify the .aab is signed (fail early if not)
+        run: |
+          set -e
+          AAB=$(find platforms/android/app/build/outputs/bundle/release -name '*.aab' | head -1)
+          echo "bundle: $AAB"
+          # A signed bundle contains a META-INF signature block (.RSA/.EC/.SF).
+          if unzip -l "$AAB" | grep -qE 'META-INF/.*\.(RSA|EC|DSA)'; then
+            echo "OK: bundle is signed."
+          else
+            echo "ERROR: bundle is NOT signed."; unzip -l "$AAB" | grep META-INF || true
+            exit 1
+          fi
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
